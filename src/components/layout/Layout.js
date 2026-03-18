@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Package, ShoppingBag, Wallet,
-  User, LogOut, Menu, X, ChevronRight, Store
+  LayoutDashboard, Package, ShoppingBag,
+  Wallet, User, LogOut, Menu, X, Store
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -18,92 +18,117 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
 
+  const close = () => setOpen(false);
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
 
-      {/* Overlay */}
+      {/* Dark overlay — tapping it closes the menu */}
       {open && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
-          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-20"
+          style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
+          onClick={close}
         />
       )}
 
       {/* Sidebar */}
-      <aside className={`
-        fixed top-0 left-0 h-full w-64 bg-green-800 text-white z-30 flex flex-col
-        transform transition-transform duration-300 ease-in-out
-        ${open ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:z-auto
-      `}>
-        {/* Logo */}
-        <div className="p-5 flex items-center justify-between border-b border-green-700">
-          <div className="flex items-center gap-2">
-            <Store size={24}/>
-            <span className="font-bold text-lg">ZimMarket</span>
+      <aside
+        style={{
+          transform: open ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s ease',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100%',
+          width: '260px',
+          zIndex: 30,
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: '#166534',
+          color: 'white',
+        }}
+        className="lg:static lg:translate-x-0 lg:flex"
+      >
+        {/* Logo row */}
+        <div style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #14532d' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Store size={22} />
+            <span style={{ fontWeight: 'bold', fontSize: '18px' }}>ZimMarket</span>
           </div>
-          <button onClick={() => setOpen(false)} className="lg:hidden hover:text-green-300 transition">
-            <X size={20}/>
+          <button onClick={close} style={{ color: '#bbf7d0', background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
+            <X size={22} />
           </button>
         </div>
 
         {/* Seller info */}
-        <div className="px-5 py-4 border-b border-green-700">
-          <p className="text-green-300 text-xs uppercase tracking-wide mb-1">Seller Portal</p>
-          <p className="font-semibold truncate">{user?.seller?.businessName || user?.name}</p>
-          <p className="text-green-300 text-xs truncate">{user?.phone}</p>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #14532d' }}>
+          <p style={{ color: '#86efac', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Seller Portal</p>
+          <p style={{ fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {user?.seller?.businessName || user?.name}
+          </p>
+          <p style={{ color: '#86efac', fontSize: '12px' }}>{user?.phone}</p>
         </div>
 
         {/* Nav links */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav style={{ flex: 1, padding: '12px', overflowY: 'auto' }}>
           {NAV.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
-              onClick={() => setOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition font-medium text-sm
-                ${isActive ? 'bg-white text-green-800 shadow' : 'text-green-100 hover:bg-green-700'}`
-              }
+              onClick={close}
+              style={({ isActive }) => ({
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                marginBottom: '4px',
+                fontWeight: '500',
+                fontSize: '14px',
+                textDecoration: 'none',
+                backgroundColor: isActive ? 'white' : 'transparent',
+                color: isActive ? '#166534' : '#dcfce7',
+              })}
             >
-              <Icon size={18}/>
-              <span className="flex-1">{label}</span>
-              <ChevronRight size={14} className="opacity-40"/>
+              <Icon size={18} />
+              <span>{label}</span>
             </NavLink>
           ))}
         </nav>
 
         {/* Logout */}
-        <div className="p-4 border-t border-green-700">
+        <div style={{ padding: '16px', borderTop: '1px solid #14532d' }}>
           <button
             onClick={logout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-green-200 hover:bg-green-700 transition text-sm font-medium"
+            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px', color: '#86efac', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
           >
-            <LogOut size={18}/>
+            <LogOut size={18} />
             <span>Logout</span>
           </button>
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar (mobile) */}
-        <header className="bg-white border-b px-4 py-3 flex items-center gap-3 lg:hidden sticky top-0 z-10 shadow-sm">
+      {/* Main content area */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+
+        {/* Top bar — mobile only */}
+        <header style={{ backgroundColor: 'white', borderBottom: '1px solid #e5e7eb', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <button
             onClick={() => setOpen(true)}
-            className="text-gray-600 hover:text-green-700 transition p-1"
+            style={{ color: '#374151', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
           >
-            <Menu size={24}/>
+            <Menu size={26} />
           </button>
-          <div className="flex items-center gap-2">
-            <Store size={20} className="text-green-700"/>
-            <span className="font-bold text-green-800">ZimMarket Seller</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Store size={20} color="#166534" />
+            <span style={{ fontWeight: 'bold', color: '#166534' }}>ZimMarket Seller</span>
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
-          <Outlet/>
+        <main style={{ flex: 1, padding: '16px', overflowY: 'auto' }}>
+          <Outlet />
         </main>
       </div>
     </div>
